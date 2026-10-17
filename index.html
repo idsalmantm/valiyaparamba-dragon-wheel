@@ -29,6 +29,7 @@ try { document.documentElement.dataset.theme = localStorage.getItem('vp-theme') 
   color-scheme:light;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;min-height:100%}
 body{
   font-family:Poppins,system-ui,sans-serif;color:var(--text);
@@ -53,10 +54,10 @@ header .actions{display:flex;gap:.6rem}
 #setup{max-width:1300px;margin:2rem auto;padding:0 16px}
 #setup h2{font-family:'Bebas Neue';font-size:2.4rem;letter-spacing:.05em;margin:.2em 0}
 .hint{color:var(--muted)}
-.teams-setup{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1rem 0 1.5rem}
+.teams-setup{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin:1rem 0 1.5rem}
 .teams-setup label,.pos-grid label{display:flex;flex-direction:column;gap:.4rem;font-weight:600}
 .teams-setup input{font:inherit;padding:.6em .8em;border-radius:10px;border:2px solid var(--c);background:var(--panel);color:var(--text)}
-.pos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.pos-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1rem}
 .pos-grid textarea{font:inherit;font-size:.95rem;height:22rem;padding:.7em;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--text);resize:vertical}
 .pos-grid small{color:var(--gold-text)}
 #startBtn{margin:1.5rem 0 3rem;font-size:1.4rem;padding:.8em 2.4em}
@@ -155,12 +156,15 @@ summary{font-weight:600;cursor:pointer}
   .teams-setup,.pos-grid,.teams{grid-template-columns:1fr 1fr}
   #modal .card{padding:2rem 1.5rem;margin:16px}
 }
+@media (max-width:600px){
+  .teams{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <header>
   <h1>🐉 Valiyaparamba <span>Dragon Wheel</span></h1>
-  <p>⚽ Family Event Football Draft · random &amp; fair, no favourites</p>
+  <p>⚽ Valiyaparamba Events · Football Draft · random &amp; fair, no favourites</p>
   <div class="actions">
     <button class="ghost" id="themeBtn" title="Switch light / dark">🌙</button>
     <button class="ghost" id="fsBtn">⛶ Fullscreen</button>
@@ -173,7 +177,7 @@ summary{font-weight:600;cursor:pointer}
     <b>📥 Import players from Excel / CSV</b>
     <label class="btn">Choose file<input type="file" id="importFile" accept=".csv,.xlsx,.xls"></label>
     <a id="tplLink" download="players-template.csv">Download template</a>
-    <span id="importMsg">Columns: <b>SNO, Name, Position</b> (Position: Goalkeeper / Defender / Midfielder / Forward). Or type names below.</span>
+    <span id="importMsg">Columns: <b>SNO, Name, Position</b> (Position: Goalkeeper / Defender / Striker / Wing Back / Forward). Or type names below.</span>
   </div>
   <h2>Team names</h2>
   <div class="teams-setup" id="teamInputs"></div>
@@ -208,15 +212,28 @@ summary{font-weight:600;cursor:pointer}
 </div></div>
 
 <script>
+// Draft order. `rows` = pitch rows (y) a team's players of that position are spread across.
 const POS = [
-  {k:'GK',  name:'Goalkeeper', plural:'Goalkeepers', n:4,  icon:'🧤', y:118},
-  {k:'DEF', name:'Defender',   plural:'Defenders',   n:18, icon:'🛡️', y:86},
-  {k:'MID', name:'Midfielder', plural:'Midfielders', n:16, icon:'🎯', y:54},
-  {k:'FWD', name:'Forward',    plural:'Forwards',    n:16, icon:'⚡', y:22},
+  {k:'GK',  name:'Goalkeeper', plural:'Goalkeepers', icon:'🧤', rows:[121]},
+  {k:'DEF', name:'Defender',   plural:'Defenders',   icon:'🛡️', rows:[101]},
+  {k:'ST',  name:'Striker',    plural:'Strikers',    icon:'🎯', rows:[17]},
+  {k:'WB',  name:'Wing Back',  plural:'Wing Backs',  icon:'🪽', rows:[81]},
+  {k:'FWD', name:'Forward',    plural:'Forwards',    icon:'⚡', rows:[60,39]},
 ];
+const PLAYERS = {
+  GK:  ['Suhair','Abdu Madakkal','Muhammed TKP','Abdu'],
+  DEF: ['Unais','Nizam','Rafi','Nasih'],
+  ST:  ['Zahid','Junaid','Sahal','Fayiz M'],
+  WB:  ['Shaheer','Shekki','Abid','Muhammed Nasarcha','Muhammad Kuku','Sajeevan','Safwan KMC','Ahmed PK',
+        'Nizar TKP','Hashim PKC','Fawns TKP'],
+  FWD: ['Naseef','Shabeeb','Farad','Azhar','Faisal','Hashim','Sharafu','Navas','Saheer','Shabeer','Irshad',
+        'Abdu Thotta','Haris PK','Ansar PK','Rafeek TKP','Safar TKP','Sulaiman Puthiyapla','Hussain AG',
+        'Akbar TKP','Fairu TKP','Sajeer Puthiyapla','Ziyad Puthiyapla','Rafeeq U','Tariq Puthiyapla',
+        'Sharafu Puthiyapla','Asainar U','Rashid M'],
+};
 const TEAM_COLORS = ['#e63946','#1d8cf8','#f4b400','#9b59b6'];
 const SEG_COLORS = ['#e63946','#f77f00','#fcbf49','#2a9d8f','#1d8cf8','#6c5ce7','#d63384','#43aa8b','#277da1','#f94144'];
-const KEY = 'valiyaparamba-dragon-wheel-v1';
+const KEY = 'valiyaparamba-dragon-wheel-v2';
 const $ = id => document.getElementById(id);
 
 let S = load() || freshState();
@@ -224,9 +241,9 @@ let spinning = false;
 
 function freshState(){
   let n = 0;
-  const lists = {};
-  for (const p of POS) lists[p.k] = Array.from({length:p.n}, () => 'Player ' + (++n)).join('\n');
-  return {started:false, setup:{teams:['Team Dragons','Team Tigers','Team Eagles','Team Lions'], lists}};
+  const lists = {}, sno = {};
+  for (const p of POS) { lists[p.k] = PLAYERS[p.k].join('\n'); for (const name of PLAYERS[p.k]) sno[name] = String(++n); }
+  return {started:false, setup:{teams:['Team Dragons','Team Tigers','Team Eagles','Team Lions'], lists, sno}};
 }
 function load(){ try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
@@ -277,12 +294,13 @@ $('startBtn').onclick = () => {
 function posKey(v){
   const s = String(v).trim().toLowerCase();
   if (/^(gk|goal|keeper)/.test(s)) return 'GK';
+  if (/^(wb|lwb|rwb|wing)/.test(s)) return 'WB';
   if (/^(def|back|cb|lb|rb)/.test(s)) return 'DEF';
-  if (/^(mid|cm|dm|am)/.test(s)) return 'MID';
-  if (/^(fw|for|str|st|att|wing)/.test(s)) return 'FWD';
+  if (/^(st|str)/.test(s)) return 'ST';
+  if (/^(fw|for|att|mid|cm|am)/.test(s)) return 'FWD';
   return null;
 }
-$('tplLink').href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('SNO,Name,Position\n1,Rahim,Goalkeeper\n2,Anwar,Defender\n3,Faisal,Midfielder\n4,Shameer,Forward\n');
+$('tplLink').href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('SNO,Name,Position\n1,Suhair,Goalkeeper\n5,Unais,Defender\n9,Zahid,Striker\n13,Shaheer,Wing Back\n24,Naseef,Forward\n');
 $('importFile').onchange = async e => {
   const f = e.target.files[0]; e.target.value = '';
   if (!f) return;
@@ -291,7 +309,7 @@ $('importFile').onchange = async e => {
     const wb = XLSX.read(await f.arrayBuffer());
     rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
   } catch { return alert('Could not read that file. Use .csv or .xlsx with columns SNO, Name, Position.'); }
-  const lists = {GK:[],DEF:[],MID:[],FWD:[]}, sno = {}, bad = [];
+  const lists = Object.fromEntries(POS.map(p => [p.k, []])), sno = {}, bad = [];
   for (const r of rows){
     const get = k => { const key = Object.keys(r).find(x => x.toLowerCase().replace(/[^a-z]/g,'') === k); return key ? String(r[key]).trim() : ''; };
     const name = get('name'), p = posKey(get('position'));
@@ -386,13 +404,14 @@ function renderDraft(fresh){
 function pitch(t, freshName){
   const sno = S.setup.sno || {};
   const dots = POS.map(p => {
-    const ps = t.players.filter(x => x.pos === p.k);
+    const ps = t.players.filter(x => x.pos === p.k), per = Math.ceil(ps.length / p.rows.length);
     return ps.map((x,j) => {
-      const cx = ((j+1) * 100 / (ps.length+1)).toFixed(1), label = sno[x.name] || x.name[0];
+      const row = Math.floor(j / per), inRow = Math.min(per, ps.length - row*per), y = p.rows[row];
+      const cx = (((j % per)+1) * 100 / (inRow+1)).toFixed(1), label = sno[x.name] || x.name[0];
       return `<g class="${x.name === freshName ? 'dot' : ''}"><title>${esc(x.name)} (${p.name})</title>
-        <circle cx="${cx}" cy="${p.y}" r="6.5" fill="${t.color}" stroke="#fff" stroke-width="1.2"/>
-        <text class="num" x="${cx}" y="${p.y+1.8}">${esc(String(label).slice(0,3))}</text>
-        <text class="nm" x="${cx}" y="${p.y+11.5}">${esc(x.name.split(' ')[0].slice(0,7))}</text></g>`;
+        <circle cx="${cx}" cy="${y}" r="6.5" fill="${t.color}" stroke="#fff" stroke-width="1.2"/>
+        <text class="num" x="${cx}" y="${y+1.8}">${esc(String(label).slice(0,3))}</text>
+        <text class="nm" x="${cx}" y="${y+11.5}">${esc(x.name.split(' ')[0].slice(0,7))}</text></g>`;
     }).join('');
   }).join('');
   const stripes = Array.from({length:9}, (_,i) => `<rect y="${i*15}" width="100" height="7.5" fill="#2f9a4f"/>`).join('');

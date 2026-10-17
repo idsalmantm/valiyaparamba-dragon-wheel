@@ -1,55 +1,51 @@
 SNO,Name,Position
-1,Member 1,Goalkeeper
-2,Member 2,Goalkeeper
-3,Member 3,Goalkeeper
-4,Member 4,Goalkeeper
-5,Member 5,Defender
-6,Member 6,Defender
-7,Member 7,Defender
-8,Member 8,Defender
-9,Member 9,Defender
-10,Member 10,Defender
-11,Member 11,Defender
-12,Member 12,Defender
-13,Member 13,Defender
-14,Member 14,Defender
-15,Member 15,Defender
-16,Member 16,Defender
-17,Member 17,Defender
-18,Member 18,Defender
-19,Member 19,Defender
-20,Member 20,Defender
-21,Member 21,Defender
-22,Member 22,Defender
-23,Member 23,Midfielder
-24,Member 24,Midfielder
-25,Member 25,Midfielder
-26,Member 26,Midfielder
-27,Member 27,Midfielder
-28,Member 28,Midfielder
-29,Member 29,Midfielder
-30,Member 30,Midfielder
-31,Member 31,Midfielder
-32,Member 32,Midfielder
-33,Member 33,Midfielder
-34,Member 34,Midfielder
-35,Member 35,Midfielder
-36,Member 36,Midfielder
-37,Member 37,Midfielder
-38,Member 38,Midfielder
-39,Member 39,Forward
-40,Member 40,Forward
-41,Member 41,Forward
-42,Member 42,Forward
-43,Member 43,Forward
-44,Member 44,Forward
-45,Member 45,Forward
-46,Member 46,Forward
-47,Member 47,Forward
-48,Member 48,Forward
-49,Member 49,Forward
-50,Member 50,Forward
-51,Member 51,Forward
-52,Member 52,Forward
-53,Member 53,Forward
-54,Member 54,Forward
+1,Suhair,Goalkeeper
+2,Abdu Madakkal,Goalkeeper
+3,Muhammed TKP,Goalkeeper
+4,Abdu,Goalkeeper
+5,Unais,Defender
+6,Nizam,Defender
+7,Rafi,Defender
+8,Nasih,Defender
+9,Zahid,Striker
+10,Junaid,Striker
+11,Sahal,Striker
+12,Fayiz M,Striker
+13,Shaheer,Wing Back
+14,Shekki,Wing Back
+15,Abid,Wing Back
+16,Muhammed Nasarcha,Wing Back
+17,Muhammad Kuku,Wing Back
+18,Sajeevan,Wing Back
+19,Safwan KMC,Wing Back
+20,Ahmed PK,Wing Back
+21,Nizar TKP,Wing Back
+22,Hashim PKC,Wing Back
+23,Fawns TKP,Wing Back
+24,Naseef,Forward
+25,Shabeeb,Forward
+26,Farad,Forward
+27,Azhar,Forward
+28,Faisal,Forward
+29,Hashim,Forward
+30,Sharafu,Forward
+31,Navas,Forward
+32,Saheer,Forward
+33,Shabeer,Forward
+34,Irshad,Forward
+35,Abdu Thotta,Forward
+36,Haris PK,Forward
+37,Ansar PK,Forward
+38,Rafeek TKP,Forward
+39,Safar TKP,Forward
+40,Sulaiman Puthiyapla,Forward
+41,Hussain AG,Forward
+42,Akbar TKP,Forward
+43,Fairu TKP,Forward
+44,Sajeer Puthiyapla,Forward
+45,Ziyad Puthiyapla,Forward
+46,Rafeeq U,Forward
+47,Tariq Puthiyapla,Forward
+48,Sharafu Puthiyapla,Forward
+49,Asainar U,Forward
+50,Rashid M,Forward
