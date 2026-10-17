@@ -4,28 +4,34 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Valiyaparamba Dragon Wheel</title>
+<meta name="description" content="Pirishathil Valiyaparamba Season 3 · 7–8 November 2026 · Football team draft">
+<meta property="og:title" content="Pirishathil Valiyaparamba · Season 3 · Dragon Wheel">
+<meta property="og:description" content="Football team draft · 7–8 November 2026 · Umm Al Quwain Farm House">
+<meta property="og:image" content="https://idsalmantm.github.io/valiyaparamba-dragon-wheel/assets/banner.jpg">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐉</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@600;700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 // Theme before paint: saved choice, else OS preference.
 try { document.documentElement.dataset.theme = localStorage.getItem('vp-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); } catch {}
 </script>
 <style>
+/* Layout: sunset sky fading to sea and sand, white signboard panels, sunset-orange controls. */
 :root{
-  --bg:#06140f; --bg2:#0b2a1d; --panel:rgba(255,255,255,.06); --line:rgba(255,255,255,.12);
-  --text:#f3f7f4; --muted:#9fb8aa; --gold:#ffc83d; --gold2:#ff8a00; --gold-text:#ffc83d; --red:#ff4d5e;
-  --chip:rgba(255,255,255,.08); --field:rgba(0,0,0,.35); --badge:rgba(255,255,255,.12); --sno-bg:rgba(0,0,0,.35);
-  --stripe:rgba(255,255,255,.025); --pointer:#fff; --overlay:rgba(0,0,0,.7);
-  --modal-bg:radial-gradient(circle at top,#173d2b,#07170f);
+  --display:'Baloo Chettan 2',Poppins,system-ui,sans-serif;
+  --sky:#0f416a; --bg:#05182a; --bg2:#0b3354; --panel:rgba(255,255,255,.06); --line:rgba(170,215,255,.15);
+  --text:#f1f7fc; --muted:#9bb5cb; --gold:#ffb04a; --gold2:#ff7419; --gold-text:#ffb04a; --sea:#4fb0f0; --red:#ff5d6c;
+  --chip:rgba(255,255,255,.08); --field:rgba(0,0,0,.3); --badge:rgba(255,255,255,.12); --sno-bg:rgba(0,0,0,.4);
+  --pointer:#fff; --overlay:rgba(2,10,20,.72);
+  --modal-bg:radial-gradient(circle at top,#15527f,#05182a);
   color-scheme:dark;
 }
 :root[data-theme="light"]{
-  --bg:#e7f1ea; --bg2:#ffffff; --panel:rgba(255,255,255,.8); --line:rgba(10,45,28,.14);
-  --text:#0d2318; --muted:#4f6b5c; --gold-text:#a35f00; --red:#d62839;
-  --chip:rgba(10,45,28,.06); --field:#fff; --badge:rgba(10,45,28,.08); --sno-bg:rgba(10,45,28,.85);
-  --stripe:rgba(10,90,40,.035); --pointer:#0d2318; --overlay:rgba(10,30,20,.45);
-  --modal-bg:radial-gradient(circle at top,#ffffff,#e3f1e7);
+  --sky:#fcc795; --bg:#f4dcc0; --bg2:#fde6cc; --panel:rgba(255,255,255,.86); --line:rgba(13,47,110,.14);
+  --text:#0d2f6e; --muted:#4f6a8d; --gold-text:#bf4a07; --sea:#1569c4; --red:#d62839;
+  --chip:rgba(13,47,110,.06); --field:#fff; --badge:rgba(13,47,110,.08); --sno-bg:#0d2f6e;
+  --pointer:#0d2f6e; --overlay:rgba(13,30,60,.45);
+  --modal-bg:radial-gradient(circle at top,#ffffff,#e2f0fb);
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -33,9 +39,7 @@ try { document.documentElement.dataset.theme = localStorage.getItem('vp-theme') 
 html,body{margin:0;min-height:100%}
 body{
   font-family:Poppins,system-ui,sans-serif;color:var(--text);
-  background:
-    repeating-linear-gradient(90deg,transparent 0 8vw,var(--stripe) 8vw 16vw),
-    radial-gradient(ellipse at 30% 40%,var(--bg2),var(--bg) 70%);
+  background:linear-gradient(180deg,var(--sky) 0,var(--bg2) 22rem,var(--bg) 70rem);
   background-color:var(--bg);
   background-attachment:fixed;
 }
@@ -44,15 +48,24 @@ button:disabled{opacity:.4;cursor:not-allowed}
 button.ghost{background:var(--panel);color:var(--text);border:1px solid var(--line)}
 button.danger{background:transparent;color:var(--red);border:1px solid var(--red)}
 
-header{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:1rem 2rem;border-bottom:1px solid var(--line)}
-header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,3.4vw,3.6rem);letter-spacing:.04em;margin:0;line-height:1}
+header{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:.8rem 2rem;border-bottom:4px solid var(--sea);background:var(--panel);backdrop-filter:blur(6px)}
+header .logo{height:4.2rem;width:auto;border-radius:10px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+header .ml{display:block;font-size:.55em;color:var(--sea);letter-spacing:0}
+.hero{display:grid;grid-template-columns:minmax(0,22rem) minmax(0,1fr);gap:2rem;align-items:center;margin:0 0 2rem}
+.hero img{width:100%;max-width:100%;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.3);display:block}
+.hero .kicker{font-family:var(--display);color:var(--sea);font-size:1.25rem;font-weight:700;margin:0}
+.hero h2{font-size:clamp(2.4rem,5vw,4rem)!important;line-height:1.05;margin:.2em 0!important}
+.hero .facts{display:flex;flex-wrap:wrap;gap:.6rem;margin:1rem 0}
+.hero .facts span{padding:.45em .95em;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-weight:600}
+.hero .facts b{color:var(--gold-text)}
+header h1{font-family:var(--display);font-size:clamp(2rem,3.4vw,3.6rem);letter-spacing:.01em;margin:0;line-height:1}
 header h1 span{color:var(--gold-text)}
 header p{margin:0;color:var(--muted);flex:1}
 header .actions{display:flex;gap:.6rem}
 
 /* ---------- setup ---------- */
 #setup{max-width:1300px;margin:2rem auto;padding:0 16px}
-#setup h2{font-family:'Bebas Neue';font-size:2.4rem;letter-spacing:.05em;margin:.2em 0}
+#setup h2{font-family:var(--display);font-size:2.4rem;letter-spacing:.01em;margin:.2em 0}
 .hint{color:var(--muted)}
 .teams-setup{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin:1rem 0 1.5rem}
 .teams-setup label,.pos-grid label{display:flex;flex-direction:column;gap:.4rem;font-weight:600}
@@ -66,22 +79,22 @@ header .actions{display:flex;gap:.6rem}
 #draft{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2rem;padding:1.2rem 2rem;align-items:start}
 .wheel-col{display:flex;flex-direction:column;align-items:center;gap:1rem}
 .status{text-align:center}
-#posLabel{font-family:'Bebas Neue';font-size:clamp(2rem,3.5vw,4rem);letter-spacing:.06em;line-height:1}
+#posLabel{font-family:var(--display);font-size:clamp(2rem,3.5vw,4rem);letter-spacing:.01em;line-height:1}
 #posLabel em{font-style:normal;color:var(--gold-text)}
 #nextTeam{font-size:clamp(1rem,1.6vw,1.8rem);font-weight:600;color:var(--muted)}
 #nextTeam b{padding:.05em .5em;border-radius:8px;color:#fff}
 
 .wheel-wrap{--size:min(72vh,56vw);position:relative;margin-top:calc(var(--size)*.07);width:var(--size);height:var(--size)}
 .wheel-wrap::before{content:"";position:absolute;inset:-14px;border-radius:50%;
-  background:conic-gradient(from 0deg,var(--gold),var(--gold2),var(--gold),var(--gold2),var(--gold));
-  box-shadow:0 0 60px rgba(255,200,61,.35),0 20px 60px rgba(0,0,0,.6)}
+  background:conic-gradient(from 0deg,var(--gold),var(--gold2),var(--sea),var(--gold),var(--gold2),var(--sea),var(--gold));
+  box-shadow:0 0 60px rgba(255,150,60,.35),0 20px 60px rgba(0,0,0,.45)}
 #wheel{position:relative;width:100%;height:100%;border-radius:50%;display:block}
 .pointer{position:absolute;left:50%;top:-34px;transform:translateX(-50%);z-index:3;width:0;height:0;
   border-left:calc(var(--size)*.045) solid transparent;border-right:calc(var(--size)*.045) solid transparent;
   border-top:calc(var(--size)*.09) solid var(--pointer);filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
 #hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;
   width:calc(var(--size)*.22);height:calc(var(--size)*.22);border-radius:50%;padding:0;
-  font-family:'Bebas Neue';font-size:calc(var(--size)*.05);letter-spacing:.05em;line-height:1;
+  font-family:var(--display);font-size:calc(var(--size)*.05);letter-spacing:.01em;line-height:1;
   border:6px solid #fff;box-shadow:0 0 0 6px rgba(0,0,0,.25),0 8px 30px rgba(0,0,0,.5);transition:transform .15s}
 #hub:not(:disabled):hover{transform:translate(-50%,-50%) scale(1.06)}
 #hub .ball{display:block;font-size:1.5em}
@@ -99,7 +112,7 @@ aside{display:flex;flex-direction:column;gap:1.2rem;min-width:0}
 .teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
 .team{background:var(--panel);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:16px;padding:.8rem 1rem;min-height:12rem;transition:box-shadow .3s}
 .team.next{box-shadow:0 0 0 3px var(--c),0 0 30px var(--c)}
-.team h3{margin:0 0 .5rem;display:flex;justify-content:space-between;font-family:'Bebas Neue';font-size:clamp(1.4rem,1.8vw,2.2rem);letter-spacing:.05em;color:var(--c)}
+.team h3{margin:0 0 .5rem;display:flex;justify-content:space-between;font-family:var(--display);font-size:clamp(1.4rem,1.8vw,2.2rem);letter-spacing:.01em;color:var(--c)}
 .team h3 span{color:var(--muted)}
 .team ul{list-style:none;margin:0;padding:0;columns:9rem 2;column-gap:1rem;font-size:clamp(.85rem,.95vw,1.1rem)}
 .team li{break-inside:avoid;padding:.12em 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -113,14 +126,14 @@ summary{font-weight:600;cursor:pointer}
 #history b{color:var(--text)}
 
 #pdfBtn{display:block;margin:.8rem auto 0;font-size:clamp(1rem,1.4vw,1.3rem);padding:.7em 1.8em}
-.done-banner{font-family:'Bebas Neue';font-size:clamp(2rem,3vw,3.4rem);color:var(--gold-text);text-align:center}
+.done-banner{font-family:var(--display);font-size:clamp(2rem,3vw,3.4rem);color:var(--gold-text);text-align:center}
 
 /* ---------- winner modal ---------- */
 #modal{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:var(--overlay);backdrop-filter:blur(4px)}
 #modal[hidden]{display:none}
-#modal .card{text-align:center;padding:3rem 4rem;border-radius:28px;background:var(--modal-bg);border:3px solid var(--gold);box-shadow:0 0 80px rgba(255,200,61,.4);animation:zoom .5s cubic-bezier(.2,1.6,.4,1)}
+#modal .card{text-align:center;padding:3rem 4rem;border-radius:28px;background:var(--modal-bg);border:3px solid var(--gold);box-shadow:0 0 80px rgba(255,160,70,.4);animation:zoom .5s cubic-bezier(.2,1.6,.4,1)}
 #modal .lbl{font-weight:800;letter-spacing:.3em;color:var(--gold-text)}
-#modal .who{font-family:'Bebas Neue';font-size:clamp(3rem,8vw,9rem);line-height:1;margin:.2em 0}
+#modal .who{font-family:var(--display);font-size:clamp(3rem,8vw,9rem);line-height:1;margin:.2em 0}
 #modal .to{font-size:clamp(1.2rem,2.4vw,2.6rem);margin-bottom:1.5rem}
 #modal .to b{padding:.05em .5em;border-radius:10px;color:#fff}
 #modal button{font-size:1.3rem;padding:.7em 2.4em}
@@ -128,22 +141,25 @@ summary{font-weight:600;cursor:pointer}
 
 /* ---------- participants ---------- */
 #participants{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:1.2rem 1.4rem}
-#participants h2{font-family:'Bebas Neue';font-size:2.2rem;letter-spacing:.05em;margin:0 0 .6rem}
+#participants h2{font-family:var(--display);font-size:2.2rem;letter-spacing:.01em;margin:0 0 .6rem}
 .legend{color:var(--muted);font-size:.9rem;margin-bottom:.8rem}
 .pgroup{display:grid;grid-template-columns:11rem 1fr;gap:1rem;padding:.8rem 0;border-top:1px solid var(--line)}
-.pgroup h4{margin:0;font-family:'Bebas Neue';font-size:1.6rem;letter-spacing:.05em;color:var(--muted)}
+.pgroup h4{margin:0;font-family:var(--display);font-size:1.6rem;letter-spacing:.01em;color:var(--muted)}
 .pgroup h4 small{display:block;font-family:Poppins;font-size:.8rem}
 .pgroup.live h4{color:var(--gold-text)}
-.pgroup.live{background:linear-gradient(90deg,rgba(255,200,61,.1),transparent);border-radius:12px}
-.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.pgroup.live{background:linear-gradient(90deg,rgba(255,160,70,.1),transparent);border-radius:12px}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;align-content:flex-start}
 .chip{display:inline-flex;align-items:center;gap:.45em;padding:.35em .8em .35em .4em;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:clamp(.85rem,.9vw,1.05rem)}
 .chip i{font-style:normal;font-size:.75em;font-weight:800;min-width:2.2em;text-align:center;padding:.15em .4em;border-radius:999px;background:var(--sno-bg);color:var(--gold)}
 .chip.picked{background:var(--c);border-color:var(--c);color:#fff}
 .chip.picked small{opacity:.85;font-size:.75em}
 .pgroup.live .chip:not(.picked){border-color:var(--gold-text);animation:glow 2s ease-in-out infinite}
-@keyframes glow{50%{box-shadow:0 0 12px rgba(255,200,61,.5)}}
+@keyframes glow{50%{box-shadow:0 0 12px rgba(255,160,70,.5)}}
 
 @media (max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .hero img{max-width:20rem;margin:auto}
+  header .logo{height:3rem}
   .pgroup{grid-template-columns:1fr}
   header{padding:1rem 16px}
   #draft{grid-template-columns:1fr;padding:1rem 16px}
@@ -158,8 +174,9 @@ summary{font-weight:600;cursor:pointer}
 </head>
 <body>
 <header>
-  <h1>🐉 Valiyaparamba <span>Dragon Wheel</span></h1>
-  <p>⚽ Valiyaparamba Events · Football Draft · random &amp; fair, no favourites</p>
+  <img class="logo" src="assets/banner.jpg" alt="Pirishathil Valiyaparamba Season 3 banner">
+  <h1><span class="ml">പിരിശത്തിൽ വലിയപറമ്പ · സീസൺ 3</span>Valiyaparamba <span>Dragon Wheel</span></h1>
+  <p>⚽ Football Draft · 7–8 November 2026 · random &amp; fair, no favourites</p>
   <div class="actions">
     <button class="ghost" id="themeBtn" title="Switch light / dark">🌙</button>
     <button class="ghost" id="fsBtn">⛶ Fullscreen</button>
@@ -168,6 +185,15 @@ summary{font-weight:600;cursor:pointer}
 </header>
 
 <section id="setup" hidden>
+  <div class="hero">
+    <img src="assets/banner.jpg" alt="Pirishathil Valiyaparamba Season 3, 7–8 November 2026, Umm Al Quwain Farm House">
+    <div>
+      <p class="kicker">വലിയപറമ്പുകാരുടെ പ്രവാസ ഭൂമിയിലെ ഏറ്റവും വലിയ സംഗമം</p>
+      <h2>Pirishathil Valiyaparamba · Season 3</h2>
+      <div class="facts"><span>📅 <b>7 &amp; 8</b> November 2026</span><span>📍 Umm Al Quwain Farm House</span><span>⚽ Football Draft</span></div>
+      <p class="hint">വിവിധ കലാകായിക പരിപാടികൾ · Spin the Dragon Wheel to build four fair teams. Check the team names and players below, then start the draft.</p>
+    </div>
+  </div>
   <h2>Team names</h2>
   <div class="teams-setup" id="teamInputs"></div>
   <h2>Players by position</h2>
@@ -221,7 +247,7 @@ const PLAYERS = {
         'Sharafu Puthiyapla','Asainar U','Rashid M'],
 };
 const TEAM_COLORS = ['#e63946','#1d8cf8','#f4b400','#9b59b6'];
-const SEG_COLORS = ['#e63946','#f77f00','#fcbf49','#2a9d8f','#1d8cf8','#6c5ce7','#d63384','#43aa8b','#277da1','#f94144'];
+const SEG_COLORS = ['#1569c4','#ff7419','#13998a','#e8a317','#0d2f6e','#e2533f','#3a9b48','#3ea6e6','#bf4a07','#0f7a6c'];
 const KEY = 'valiyaparamba-dragon-wheel-v2';
 const $ = id => document.getElementById(id);
 
@@ -409,7 +435,7 @@ function drawWheel(){
   names.forEach((name, i) => {
     const a0 = -Math.PI/2 + i*seg;
     ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,r,a0,a0+seg); ctx.closePath();
-    ctx.fillStyle = done() ? '#1b4332' : SEG_COLORS[(i + (n % SEG_COLORS.length === 1 && i === n-1 ? 1 : 0)) % SEG_COLORS.length];
+    ctx.fillStyle = done() ? '#0d2f6e' : SEG_COLORS[(i + (n % SEG_COLORS.length === 1 && i === n-1 ? 1 : 0)) % SEG_COLORS.length];
     ctx.fill();
     if (n > 1) { ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3; ctx.stroke(); }
     ctx.save();
@@ -426,6 +452,15 @@ function drawWheel(){
 
 /* ---------------- controls ---------------- */
 /* ---------------- PDF report ---------------- */
+let bannerData = null;
+{
+  const img = new Image();
+  img.onload = () => { try {
+    const c = document.createElement('canvas'); c.width = 320; c.height = 400;
+    c.getContext('2d').drawImage(img, 0, 0, 320, 400); bannerData = c.toDataURL('image/jpeg', .85);
+  } catch {} };
+  img.src = 'assets/banner.jpg';
+}
 function downloadReport(){
   const jsPDF = window.jspdf?.jsPDF;
   if (!jsPDF) return alert('The PDF tool could not load. Check the internet connection, refresh and try again.');
@@ -436,17 +471,20 @@ function downloadReport(){
   const now = new Date(), dateStr = now.toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
 
   function header(sub){
-    doc.setFillColor(11,42,29); doc.rect(0,0,W,26,'F');
-    doc.setFillColor(255,200,61); doc.rect(0,26,W,1.2,'F');
-    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(19);
-    doc.text('VALIYAPARAMBA DRAGON WHEEL', M, 12);
-    doc.setTextColor(255,200,61); doc.setFontSize(10.5); doc.setFont('helvetica','normal');
-    doc.text('Valiyaparamba Events · Football Draft · ' + sub, M, 19.5);
-    doc.setTextColor(220,235,226); doc.setFontSize(9);
-    doc.text(dateStr, W-M, 19.5, {align:'right'});
+    doc.setFillColor(13,47,110); doc.rect(0,0,W,26,'F');
+    doc.setFillColor(255,116,25); doc.rect(0,26,W,1.4,'F');
+    const tx = bannerData ? M + 19 : M;
+    if (bannerData) doc.addImage(bannerData, 'JPEG', M, 3, 16, 20);
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(18);
+    doc.text('PIRISHATHIL VALIYAPARAMBA · SEASON 3', tx, 11);
+    doc.setTextColor(255,176,74); doc.setFontSize(10.5); doc.setFont('helvetica','normal');
+    doc.text('Dragon Wheel Football Draft · ' + sub, tx, 17.5);
+    doc.setTextColor(205,224,245); doc.setFontSize(8.5);
+    doc.text('7 & 8 November 2026 · Umm Al Quwain Farm House', tx, 22.5);
+    doc.text('Report: ' + dateStr, W-M, 22.5, {align:'right'});
   }
   function footer(page){
-    doc.setTextColor(120,140,130); doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.setTextColor(110,128,150); doc.setFontSize(8); doc.setFont('helvetica','normal');
     doc.text(`Teams drafted by random spin · ${S.history.length} players · ${S.teams.length} teams`, M, H-8);
     doc.text(`Page ${page}`, W-M, H-8, {align:'right'});
   }
@@ -468,16 +506,16 @@ function downloadReport(){
       doc.text(t.name.toUpperCase(), x+4, y+7.4, {maxWidth: colW-30});
       doc.setFontSize(9); doc.text(`${t.players.length} players`, x+colW-4, y+7.2, {align:'right'});
       let ry = y + headH + 4.5;
-      doc.setTextColor(120,140,130); doc.setFontSize(7.5);
+      doc.setTextColor(110,128,150); doc.setFontSize(7.5);
       doc.text('NO.', x+3, ry); doc.text('PLAYER', x+14, ry); doc.text('POSITION', x+colW-3, ry, {align:'right'});
       ry += 1.5;
       ordered(t).forEach((p, k) => {
-        if (k % 2 === 0){ doc.setFillColor(240,246,242); doc.rect(x, ry, colW, rowH, 'F'); }
-        doc.setTextColor(120,140,130); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+        if (k % 2 === 0){ doc.setFillColor(234,243,251); doc.rect(x, ry, colW, rowH, 'F'); }
+        doc.setTextColor(110,128,150); doc.setFont('helvetica','normal'); doc.setFontSize(9);
         doc.text(String(sno[p.name] || ''), x+3, ry+4.2);
-        doc.setTextColor(13,35,24); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+        doc.setTextColor(13,47,110); doc.setFont('helvetica','bold'); doc.setFontSize(10);
         doc.text(p.name, x+14, ry+4.2, {maxWidth: colW-42});
-        doc.setTextColor(80,100,90); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+        doc.setTextColor(79,106,141); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
         doc.text(posName[p.pos], x+colW-3, ry+4.2, {align:'right'});
         ry += rowH;
       });
@@ -491,14 +529,14 @@ function downloadReport(){
   const per = Math.ceil(S.history.length / 2);
   S.history.forEach((h, i) => {
     const x = M + (i >= per ? colW + gap : 0), yy = 38 + (i % per) * 9.4, t = S.teams[h.team];
-    doc.setTextColor(120,140,130); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.setTextColor(110,128,150); doc.setFont('helvetica','normal'); doc.setFontSize(9);
     doc.text(`${i+1}.`, x+7, yy, {align:'right'});
-    doc.setTextColor(13,35,24); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+    doc.setTextColor(13,47,110); doc.setFont('helvetica','bold'); doc.setFontSize(10);
     doc.text(h.name, x+9, yy, {maxWidth: 46});
-    doc.setTextColor(80,100,90); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.setTextColor(79,106,141); doc.setFont('helvetica','normal'); doc.setFontSize(8);
     doc.text(posName[h.pos], x+9, yy+3.8);
     doc.setFillColor(...rgb(t.color)); doc.circle(x+58, yy-1.2, 1.4, 'F');
-    doc.setTextColor(13,35,24); doc.setFontSize(9);
+    doc.setTextColor(13,47,110); doc.setFontSize(9);
     doc.text(t.name, x+61, yy, {maxWidth: colW-61});
   });
   footer(page);
