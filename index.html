@@ -248,7 +248,7 @@ const PLAYERS = {
 };
 const TEAM_COLORS = ['#e63946','#1d8cf8','#f4b400','#9b59b6'];
 const SEG_COLORS = ['#1569c4','#ff7419','#13998a','#e8a317','#0d2f6e','#e2533f','#3a9b48','#3ea6e6','#bf4a07','#0f7a6c'];
-const KEY = 'valiyaparamba-dragon-wheel-v2';
+const KEY = 'valiyaparamba-dragon-wheel-v3';
 const $ = id => document.getElementById(id);
 
 let S = load() || freshState();
@@ -258,7 +258,7 @@ function freshState(){
   let n = 0;
   const lists = {}, sno = {};
   for (const p of POS) { lists[p.k] = PLAYERS[p.k].join('\n'); for (const name of PLAYERS[p.k]) sno[name] = String(++n); }
-  return {started:false, setup:{teams:['Team Dragons','Team Tigers','Team Eagles','Team Lions'], lists, sno}};
+  return {started:false, setup:{teams:['Team Exchange','Team Bank','Team Kurikkal','Team Kadoth'], lists, sno}};
 }
 function load(){ try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
