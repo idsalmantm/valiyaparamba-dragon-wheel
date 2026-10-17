@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Valiyaparamba Dragon Wheel</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐉</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// Theme before paint: saved choice, else OS preference.
+try { document.documentElement.dataset.theme = localStorage.getItem('vp-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); } catch {}
+</script>
+<style>
+:root{
+  --bg:#06140f; --bg2:#0b2a1d; --panel:rgba(255,255,255,.06); --line:rgba(255,255,255,.12);
+  --text:#f3f7f4; --muted:#9fb8aa; --gold:#ffc83d; --gold2:#ff8a00; --gold-text:#ffc83d; --red:#ff4d5e;
+  --chip:rgba(255,255,255,.08); --field:rgba(0,0,0,.35); --badge:rgba(255,255,255,.12); --sno-bg:rgba(0,0,0,.35);
+  --stripe:rgba(255,255,255,.025); --pointer:#fff; --overlay:rgba(0,0,0,.7);
+  --modal-bg:radial-gradient(circle at top,#173d2b,#07170f);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#e7f1ea; --bg2:#ffffff; --panel:rgba(255,255,255,.8); --line:rgba(10,45,28,.14);
+  --text:#0d2318; --muted:#4f6b5c; --gold-text:#a35f00; --red:#d62839;
+  --chip:rgba(10,45,28,.06); --field:#fff; --badge:rgba(10,45,28,.08); --sno-bg:rgba(10,45,28,.85);
+  --stripe:rgba(10,90,40,.035); --pointer:#0d2318; --overlay:rgba(10,30,20,.45);
+  --modal-bg:radial-gradient(circle at top,#ffffff,#e3f1e7);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  font-family:Poppins,system-ui,sans-serif;color:var(--text);
+  background:
+    repeating-linear-gradient(90deg,transparent 0 8vw,var(--stripe) 8vw 16vw),
+    radial-gradient(ellipse at 30% 40%,var(--bg2),var(--bg) 70%);
+  background-color:var(--bg);
+  background-attachment:fixed;
+}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:.6em 1.1em;font-weight:600;color:#1a1200;background:linear-gradient(180deg,var(--gold),var(--gold2))}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.ghost{background:var(--panel);color:var(--text);border:1px solid var(--line)}
+button.danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+
+header{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:1rem 2rem;border-bottom:1px solid var(--line)}
+header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,3.4vw,3.6rem);letter-spacing:.04em;margin:0;line-height:1}
+header h1 span{color:var(--gold-text)}
+header p{margin:0;color:var(--muted);flex:1}
+header .actions{display:flex;gap:.6rem}
+
+/* ---------- setup ---------- */
+#setup{max-width:1300px;margin:2rem auto;padding:0 16px}
+#setup h2{font-family:'Bebas Neue';font-size:2.4rem;letter-spacing:.05em;margin:.2em 0}
+.hint{color:var(--muted)}
+.teams-setup{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1rem 0 1.5rem}
+.teams-setup label,.pos-grid label{display:flex;flex-direction:column;gap:.4rem;font-weight:600}
+.teams-setup input{font:inherit;padding:.6em .8em;border-radius:10px;border:2px solid var(--c);background:var(--panel);color:var(--text)}
+.pos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.pos-grid textarea{font:inherit;font-size:.95rem;height:22rem;padding:.7em;border-radius:12px;border:1px solid var(--line);background:var(--field);color:var(--text);resize:vertical}
+.pos-grid small{color:var(--gold-text)}
+#startBtn{margin:1.5rem 0 3rem;font-size:1.4rem;padding:.8em 2.4em}
+
+/* ---------- draft ---------- */
+#draft{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2rem;padding:1.2rem 2rem;align-items:start}
+.wheel-col{display:flex;flex-direction:column;align-items:center;gap:1rem}
+.status{text-align:center}
+#posLabel{font-family:'Bebas Neue';font-size:clamp(2rem,3.5vw,4rem);letter-spacing:.06em;line-height:1}
+#posLabel em{font-style:normal;color:var(--gold-text)}
+#nextTeam{font-size:clamp(1rem,1.6vw,1.8rem);font-weight:600;color:var(--muted)}
+#nextTeam b{padding:.05em .5em;border-radius:8px;color:#fff}
+
+.wheel-wrap{--size:min(72vh,56vw);position:relative;margin-top:calc(var(--size)*.07);width:var(--size);height:var(--size)}
+.wheel-wrap::before{content:"";position:absolute;inset:-14px;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--gold),var(--gold2),var(--gold),var(--gold2),var(--gold));
+  box-shadow:0 0 60px rgba(255,200,61,.35),0 20px 60px rgba(0,0,0,.6)}
+#wheel{position:relative;width:100%;height:100%;border-radius:50%;display:block}
+.pointer{position:absolute;left:50%;top:-34px;transform:translateX(-50%);z-index:3;width:0;height:0;
+  border-left:calc(var(--size)*.045) solid transparent;border-right:calc(var(--size)*.045) solid transparent;
+  border-top:calc(var(--size)*.09) solid var(--pointer);filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
+#hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;
+  width:calc(var(--size)*.22);height:calc(var(--size)*.22);border-radius:50%;padding:0;
+  font-family:'Bebas Neue';font-size:calc(var(--size)*.05);letter-spacing:.05em;line-height:1;
+  border:6px solid #fff;box-shadow:0 0 0 6px rgba(0,0,0,.25),0 8px 30px rgba(0,0,0,.5);transition:transform .15s}
+#hub:not(:disabled):hover{transform:translate(-50%,-50%) scale(1.06)}
+#hub .ball{display:block;font-size:1.5em}
+#hub.spinning .ball{animation:roll .5s linear infinite}
+@keyframes roll{to{transform:rotate(360deg)}}
+.team-body{display:grid;grid-template-columns:minmax(0,40%) minmax(0,1fr);gap:.9rem;align-items:start}
+.pitch{width:100%;display:block;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.pitch .num{font:800 5px Poppins,sans-serif;fill:#fff;text-anchor:middle}
+.pitch .nm{font:600 4.2px Poppins,sans-serif;fill:#fff;text-anchor:middle;paint-order:stroke;stroke:rgba(0,0,0,.65);stroke-width:1px}
+.pitch .dot{animation:drop .6s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes drop{from{transform:translateY(-6px);opacity:0}}
+#modal .icon{font-size:clamp(3rem,6vw,6rem);line-height:1}
+
+aside{display:flex;flex-direction:column;gap:1.2rem;min-width:0}
+.teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.team{background:var(--panel);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:16px;padding:.8rem 1rem;min-height:12rem;transition:box-shadow .3s}
+.team.next{box-shadow:0 0 0 3px var(--c),0 0 30px var(--c)}
+.team h3{margin:0 0 .5rem;display:flex;justify-content:space-between;font-family:'Bebas Neue';font-size:clamp(1.4rem,1.8vw,2.2rem);letter-spacing:.05em;color:var(--c)}
+.team h3 span{color:var(--muted)}
+.team ul{list-style:none;margin:0;padding:0;columns:9rem 2;column-gap:1rem;font-size:clamp(.85rem,.95vw,1.1rem)}
+.team li{break-inside:avoid;padding:.12em 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.team li.fresh{animation:pop 1s ease}
+.badge{display:inline-block;width:2.6em;font-size:.7em;font-weight:800;text-align:center;border-radius:5px;margin-right:.4em;background:var(--badge);color:var(--gold-text)}
+@keyframes pop{0%{background:var(--gold);color:#000}100%{background:transparent}}
+
+details{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:.8rem 1rem}
+summary{font-weight:600;cursor:pointer}
+#history{margin:.6rem 0 0;padding-left:2.4em;max-height:24vh;overflow:auto;font-size:.95rem;color:var(--muted)}
+#history b{color:var(--text)}
+
+.done-banner{font-family:'Bebas Neue';font-size:clamp(2rem,3vw,3.4rem);color:var(--gold-text);text-align:center}
+
+/* ---------- winner modal ---------- */
+#modal{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:var(--overlay);backdrop-filter:blur(4px)}
+#modal[hidden]{display:none}
+#modal .card{text-align:center;padding:3rem 4rem;border-radius:28px;background:var(--modal-bg);border:3px solid var(--gold);box-shadow:0 0 80px rgba(255,200,61,.4);animation:zoom .5s cubic-bezier(.2,1.6,.4,1)}
+#modal .lbl{font-weight:800;letter-spacing:.3em;color:var(--gold-text)}
+#modal .who{font-family:'Bebas Neue';font-size:clamp(3rem,8vw,9rem);line-height:1;margin:.2em 0}
+#modal .to{font-size:clamp(1.2rem,2.4vw,2.6rem);margin-bottom:1.5rem}
+#modal .to b{padding:.05em .5em;border-radius:10px;color:#fff}
+#modal button{font-size:1.3rem;padding:.7em 2.4em}
+@keyframes zoom{from{transform:scale(.3);opacity:0}}
+
+/* ---------- import + participants ---------- */
+.import{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;padding:1.2rem 1.4rem;margin:1rem 0 2rem;border:2px dashed var(--gold);border-radius:18px;background:rgba(255,200,61,.06)}
+.import b{font-size:1.1rem}
+.import a{color:var(--gold-text)}
+.import label.btn{display:inline-block;border-radius:12px;padding:.7em 1.4em;font-weight:600;color:#1a1200;background:linear-gradient(180deg,var(--gold),var(--gold2));cursor:pointer}
+.import input{display:none}
+#importMsg{color:var(--muted);flex-basis:100%}
+#participants{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:1.2rem 1.4rem}
+#participants h2{font-family:'Bebas Neue';font-size:2.2rem;letter-spacing:.05em;margin:0 0 .6rem}
+.legend{color:var(--muted);font-size:.9rem;margin-bottom:.8rem}
+.pgroup{display:grid;grid-template-columns:11rem 1fr;gap:1rem;padding:.8rem 0;border-top:1px solid var(--line)}
+.pgroup h4{margin:0;font-family:'Bebas Neue';font-size:1.6rem;letter-spacing:.05em;color:var(--muted)}
+.pgroup h4 small{display:block;font-family:Poppins;font-size:.8rem}
+.pgroup.live h4{color:var(--gold-text)}
+.pgroup.live{background:linear-gradient(90deg,rgba(255,200,61,.1),transparent);border-radius:12px}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{display:inline-flex;align-items:center;gap:.45em;padding:.35em .8em .35em .4em;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:clamp(.85rem,.9vw,1.05rem)}
+.chip i{font-style:normal;font-size:.75em;font-weight:800;min-width:2.2em;text-align:center;padding:.15em .4em;border-radius:999px;background:var(--sno-bg);color:var(--gold)}
+.chip.picked{background:var(--c);border-color:var(--c);color:#fff}
+.chip.picked small{opacity:.85;font-size:.75em}
+.pgroup.live .chip:not(.picked){border-color:var(--gold-text);animation:glow 2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 12px rgba(255,200,61,.5)}}
+
+@media (max-width:900px){
+  .pgroup{grid-template-columns:1fr}
+  header{padding:1rem 16px}
+  #draft{grid-template-columns:1fr;padding:1rem 16px}
+  .wheel-wrap{--size:min(86vw,70vh)}
+  .teams-setup,.pos-grid,.teams{grid-template-columns:1fr 1fr}
+  #modal .card{padding:2rem 1.5rem;margin:16px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>🐉 Valiyaparamba <span>Dragon Wheel</span></h1>
+  <p>⚽ Family Event Football Draft · random &amp; fair, no favourites</p>
+  <div class="actions">
+    <button class="ghost" id="themeBtn" title="Switch light / dark">🌙</button>
+    <button class="ghost" id="fsBtn">⛶ Fullscreen</button>
+    <button class="danger" id="resetBtn">Full Reset</button>
+  </div>
+</header>
+
+<section id="setup" hidden>
+  <div class="import">
+    <b>📥 Import players from Excel / CSV</b>
+    <label class="btn">Choose file<input type="file" id="importFile" accept=".csv,.xlsx,.xls"></label>
+    <a id="tplLink" download="players-template.csv">Download template</a>
+    <span id="importMsg">Columns: <b>SNO, Name, Position</b> (Position: Goalkeeper / Defender / Midfielder / Forward). Or type names below.</span>
+  </div>
+  <h2>Team names</h2>
+  <div class="teams-setup" id="teamInputs"></div>
+  <h2>Players by position</h2>
+  <p class="hint">One name per line. Total players: <b id="total">0</b></p>
+  <div class="pos-grid" id="posInputs"></div>
+  <button id="startBtn">Start Draft 🐉</button>
+</section>
+
+<main id="draft" hidden>
+  <div class="wheel-col">
+    <div class="status"><div id="posLabel"></div><div id="nextTeam"></div></div>
+    <div class="wheel-wrap">
+      <div class="pointer"></div>
+      <canvas id="wheel"></canvas>
+      <button id="hub"><span class="ball">⚽</span>SPIN</button>
+    </div>
+  </div>
+  <aside>
+    <div class="teams" id="teams"></div>
+    <details open><summary>Spin record (<span id="histCount">0</span>)</summary><ol id="history" reversed></ol></details>
+  </aside>
+  <section id="participants"><h2>👥 Participants</h2>
+    <div class="legend">Coloured = drafted (team colour) · glowing = on the wheel now</div>
+    <div id="roster"></div></section>
+</main>
+
+<div id="modal" hidden><div class="card">
+  <div class="icon" id="mIcon"></div>
+  <div class="lbl" id="mPos"></div><div class="who" id="mWho"></div><div class="to" id="mTo"></div>
+  <button id="mOk">Continue</button>
+</div></div>
+
+<script>
+const POS = [
+  {k:'GK',  name:'Goalkeeper', plural:'Goalkeepers', n:4,  icon:'🧤', y:118},
+  {k:'DEF', name:'Defender',   plural:'Defenders',   n:18, icon:'🛡️', y:86},
+  {k:'MID', name:'Midfielder', plural:'Midfielders', n:16, icon:'🎯', y:54},
+  {k:'FWD', name:'Forward',    plural:'Forwards',    n:16, icon:'⚡', y:22},
+];
+const TEAM_COLORS = ['#e63946','#1d8cf8','#f4b400','#9b59b6'];
+const SEG_COLORS = ['#e63946','#f77f00','#fcbf49','#2a9d8f','#1d8cf8','#6c5ce7','#d63384','#43aa8b','#277da1','#f94144'];
+const KEY = 'valiyaparamba-dragon-wheel-v1';
+const $ = id => document.getElementById(id);
+
+let S = load() || freshState();
+let spinning = false;
+
+function freshState(){
+  let n = 0;
+  const lists = {};
+  for (const p of POS) lists[p.k] = Array.from({length:p.n}, () => 'Player ' + (++n)).join('\n');
+  return {started:false, setup:{teams:['Team Dragons','Team Tigers','Team Eagles','Team Lions'], lists}};
+}
+function load(){ try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+
+// Unbiased crypto random int in [0, n)
+function rand(n){
+  const a = new Uint32Array(1), lim = Math.floor(2**32 / n) * n;
+  do crypto.getRandomValues(a); while (a[0] >= lim);
+  return a[0] % n;
+}
+const parse = txt => txt.split('\n').map(s => s.trim()).filter(Boolean);
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------------- setup ---------------- */
+function renderSetup(){
+  $('setup').hidden = false; $('draft').hidden = true;
+  $('teamInputs').innerHTML = S.setup.teams.map((t,i) =>
+    `<label style="--c:${TEAM_COLORS[i]}">Team ${i+1}<input data-t="${i}" value="${esc(t)}"></label>`).join('');
+  $('posInputs').innerHTML = POS.map(p =>
+    `<label>${p.icon} ${p.plural} <small id="cnt-${p.k}"></small><textarea data-p="${p.k}">${esc(S.setup.lists[p.k])}</textarea></label>`).join('');
+  updateCounts();
+}
+function updateCounts(){
+  let total = 0;
+  for (const p of POS){ const c = parse(S.setup.lists[p.k]).length; total += c; $('cnt-'+p.k).textContent = c + ' players'; }
+  $('total').textContent = total;
+}
+$('setup').addEventListener('input', e => {
+  if (e.target.dataset.t) S.setup.teams[e.target.dataset.t] = e.target.value;
+  if (e.target.dataset.p) { S.setup.lists[e.target.dataset.p] = e.target.value; updateCounts(); }
+  save();
+});
+$('startBtn').onclick = () => {
+  const pools = {};
+  for (const p of POS) pools[p.k] = parse(S.setup.lists[p.k]);
+  const all = Object.values(pools).flat();
+  if (!all.length) return alert('Add some players first.');
+  const dup = all.find((n,i) => all.indexOf(n) !== i);
+  if (dup) return alert(`"${dup}" appears twice. Please make every name unique.`);
+  if (!confirm(`Start the draft with ${all.length} players? Player lists will be locked until Full Reset.`)) return;
+  S.started = true;
+  S.teams = S.setup.teams.map((t,i) => ({name:t.trim() || 'Team '+(i+1), color:TEAM_COLORS[i], players:[]}));
+  S.pools = pools; S.phase = 0; S.history = [];
+  advance(); save(); renderDraft();
+};
+
+/* ---------------- import ---------------- */
+function posKey(v){
+  const s = String(v).trim().toLowerCase();
+  if (/^(gk|goal|keeper)/.test(s)) return 'GK';
+  if (/^(def|back|cb|lb|rb)/.test(s)) return 'DEF';
+  if (/^(mid|cm|dm|am)/.test(s)) return 'MID';
+  if (/^(fw|for|str|st|att|wing)/.test(s)) return 'FWD';
+  return null;
+}
+$('tplLink').href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('SNO,Name,Position\n1,Rahim,Goalkeeper\n2,Anwar,Defender\n3,Faisal,Midfielder\n4,Shameer,Forward\n');
+$('importFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  let rows;
+  try {
+    const wb = XLSX.read(await f.arrayBuffer());
+    rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
+  } catch { return alert('Could not read that file. Use .csv or .xlsx with columns SNO, Name, Position.'); }
+  const lists = {GK:[],DEF:[],MID:[],FWD:[]}, sno = {}, bad = [];
+  for (const r of rows){
+    const get = k => { const key = Object.keys(r).find(x => x.toLowerCase().replace(/[^a-z]/g,'') === k); return key ? String(r[key]).trim() : ''; };
+    const name = get('name'), p = posKey(get('position'));
+    if (!name) continue;
+    if (!p) { bad.push(`${name} (${get('position') || 'no position'})`); continue; }
+    lists[p].push(name); sno[name] = get('sno');
+  }
+  const total = Object.values(lists).flat().length;
+  if (!total) return alert('No players found. Check the column headers: SNO, Name, Position.');
+  for (const p of POS) S.setup.lists[p.k] = lists[p.k].join('\n');
+  S.setup.sno = sno; save(); renderSetup();
+  $('importMsg').innerHTML = `✅ Imported <b>${total}</b> players from ${esc(f.name)}: ` + POS.map(p => `${p.plural} ${lists[p.k].length}`).join(' · ')
+    + (bad.length ? `<br>⚠️ Skipped (unknown position): ${esc(bad.join(', '))}` : '');
+};
+
+/* ---------------- draft logic ---------------- */
+// Next team = fewest of this position, then fewest players overall; ties broken randomly.
+function pickTeam(pos){
+  const score = t => [t.players.filter(p => p.pos === pos).length, t.players.length];
+  let best = [], bestS = null;
+  S.teams.forEach((t,i) => {
+    const s = score(t);
+    const cmp = bestS ? (s[0]-bestS[0] || s[1]-bestS[1]) : -1;
+    if (cmp < 0) { best = [i]; bestS = s; } else if (cmp === 0) best.push(i);
+  });
+  return best[rand(best.length)];
+}
+function advance(){
+  while (S.phase < POS.length && !S.pools[POS[S.phase].k].length) S.phase++;
+  S.nextTeam = S.phase < POS.length ? pickTeam(POS[S.phase].k) : null;
+}
+const done = () => S.phase >= POS.length;
+
+function spin(){
+  if (spinning || done()) return;
+  const pos = POS[S.phase], pool = S.pools[pos.k];
+  const i = rand(pool.length), team = S.nextTeam, name = pool[i];
+  // Record immediately, so refreshing mid-spin can't re-roll a result.
+  pool.splice(i, 1);
+  S.teams[team].players.push({name, pos:pos.k});
+  S.history.push({name, pos:pos.k, team});
+  advance(); save();
+
+  spinning = true; $('hub').disabled = true; $('hub').classList.add('spinning');
+  const seg = 360 / (pool.length + 1);
+  const jitter = (rand(1000)/1000 - .5) * seg * .7;
+  const target = 360 * (7 + rand(3)) + 360 - (i + .5) * seg + jitter;
+  const c = $('wheel');
+  c.style.transition = 'transform 7s cubic-bezier(.1,.6,.05,1)';
+  c.style.transform = `rotate(${target}deg)`;
+  c.addEventListener('transitionend', () => showWinner(name, pos, team), {once:true});
+}
+
+function showWinner(name, pos, team){
+  const t = S.teams[team];
+  $('mIcon').textContent = pos.icon;
+  $('mPos').textContent = pos.name.toUpperCase();
+  $('mWho').textContent = name;
+  $('mTo').innerHTML = `joins <b style="background:${t.color}">${esc(t.name)}</b>`;
+  $('modal').hidden = false; $('mOk').focus();
+}
+$('mOk').onclick = () => { $('modal').hidden = true; spinning = false; $('hub').classList.remove('spinning'); renderDraft(true); };
+
+/* ---------------- render ---------------- */
+function renderDraft(fresh){
+  $('setup').hidden = true; $('draft').hidden = false;
+  if (done()){
+    $('posLabel').innerHTML = '🏆 Teams are <em>ready!</em>';
+    $('nextTeam').textContent = 'Every player has been drafted by the Dragon Wheel.';
+  } else {
+    const p = POS[S.phase], t = S.teams[S.nextTeam];
+    $('posLabel').innerHTML = `${p.icon} Now drafting: <em>${p.plural}</em> · ${S.pools[p.k].length} left`;
+    $('nextTeam').innerHTML = `This spin goes to <b style="background:${t.color}">${esc(t.name)}</b>`;
+  }
+  $('hub').disabled = done();
+  const last = S.history.length - 1;
+  $('teams').innerHTML = S.teams.map((t,ti) => {
+    const ps = POS.flatMap(p => t.players.filter(x => x.pos === p.k));
+    return `<div class="team${ti === S.nextTeam ? ' next' : ''}" style="--c:${t.color}">
+      <h3>${esc(t.name)} <span>${t.players.length}</span></h3>
+      <div class="team-body">${pitch(t, fresh && S.history[last]?.name)}
+      <ul>${ps.map(x => `<li class="${fresh && S.history[last]?.name === x.name ? 'fresh' : ''}"><span class="badge">${x.pos}</span>${esc(x.name)}</li>`).join('')}</ul></div></div>`;
+  }).join('');
+  $('histCount').textContent = S.history.length;
+  $('history').innerHTML = S.history.map(h =>
+    `<li><b>${esc(h.name)}</b> (${h.pos}) → <span style="color:${S.teams[h.team].color}">${esc(S.teams[h.team].name)}</span></li>`).reverse().join('');
+  renderParticipants();
+  drawWheel();
+}
+
+// Mini pitch: each position on its own row, attacking upwards.
+function pitch(t, freshName){
+  const sno = S.setup.sno || {};
+  const dots = POS.map(p => {
+    const ps = t.players.filter(x => x.pos === p.k);
+    return ps.map((x,j) => {
+      const cx = ((j+1) * 100 / (ps.length+1)).toFixed(1), label = sno[x.name] || x.name[0];
+      return `<g class="${x.name === freshName ? 'dot' : ''}"><title>${esc(x.name)} (${p.name})</title>
+        <circle cx="${cx}" cy="${p.y}" r="6.5" fill="${t.color}" stroke="#fff" stroke-width="1.2"/>
+        <text class="num" x="${cx}" y="${p.y+1.8}">${esc(String(label).slice(0,3))}</text>
+        <text class="nm" x="${cx}" y="${p.y+11.5}">${esc(x.name.split(' ')[0].slice(0,7))}</text></g>`;
+    }).join('');
+  }).join('');
+  const stripes = Array.from({length:9}, (_,i) => `<rect y="${i*15}" width="100" height="7.5" fill="#2f9a4f"/>`).join('');
+  return `<svg class="pitch" viewBox="0 0 100 135" role="img" aria-label="${esc(t.name)} formation">
+    <rect width="100" height="135" fill="#278a43"/>${stripes}
+    <g fill="none" stroke="rgba(255,255,255,.75)" stroke-width=".8">
+      <rect x="4" y="4" width="92" height="127"/><line x1="4" y1="67.5" x2="96" y2="67.5"/>
+      <circle cx="50" cy="67.5" r="11"/><circle cx="50" cy="67.5" r=".9" fill="#fff"/>
+      <rect x="24" y="4" width="52" height="19"/><rect x="38" y="4" width="24" height="7"/>
+      <rect x="24" y="112" width="52" height="19"/><rect x="38" y="124" width="24" height="7"/>
+    </g>${dots}</svg>`;
+}
+
+function renderParticipants(){
+  const where = {};
+  S.teams.forEach((t,i) => t.players.forEach(p => where[p.name] = i));
+  const sno = S.setup.sno || {};
+  $('roster').innerHTML = POS.map((p,pi) => {
+    const names = parse(S.setup.lists[p.k]);
+    if (!names.length) return '';
+    const left = names.filter(n => where[n] === undefined).length;
+    return `<div class="pgroup${pi === S.phase ? ' live' : ''}">
+      <h4>${p.icon} ${p.plural}<small>${names.length - left}/${names.length} drafted</small></h4>
+      <div class="chips">${names.map(n => {
+        const t = S.teams[where[n]];
+        return `<span class="chip${t ? ' picked' : ''}"${t ? ` style="--c:${t.color}"` : ''}>${sno[n] ? `<i>${esc(sno[n])}</i>` : ''}${esc(n)}${t ? ` <small>· ${esc(t.name)}</small>` : ''}</span>`;
+      }).join('')}</div></div>`;
+  }).join('');
+}
+
+function drawWheel(){
+  const c = $('wheel'), size = c.clientWidth, dpr = devicePixelRatio || 1;
+  c.style.transition = 'none'; c.style.transform = 'rotate(0deg)';
+  c.width = c.height = size * dpr;
+  const ctx = c.getContext('2d'), r = size / 2;
+  ctx.setTransform(dpr,0,0,dpr,r*dpr,r*dpr);
+  const names = done() ? ['🏆'] : S.pools[POS[S.phase].k];
+  const n = names.length, seg = 2*Math.PI / n;
+  const font = Math.min(r*.075, r*.7*seg*.55);
+  names.forEach((name, i) => {
+    const a0 = -Math.PI/2 + i*seg;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,r,a0,a0+seg); ctx.closePath();
+    ctx.fillStyle = done() ? '#1b4332' : SEG_COLORS[(i + (n % SEG_COLORS.length === 1 && i === n-1 ? 1 : 0)) % SEG_COLORS.length];
+    ctx.fill();
+    if (n > 1) { ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3; ctx.stroke(); }
+    ctx.save();
+    ctx.rotate(a0 + seg/2);
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.font = `800 ${font}px Poppins, sans-serif`;
+    ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 6;
+    let label = name, maxW = r*.68;
+    while (ctx.measureText(label).width > maxW && label.length > 2) label = label.slice(0,-2) + '…';
+    if (!done()) ctx.fillText(label, r*.93, 0);
+    ctx.restore();
+  });
+}
+
+/* ---------------- controls ---------------- */
+$('hub').onclick = spin;
+document.addEventListener('keydown', e => {
+  if (e.code !== 'Space' || !S.started || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  e.preventDefault();
+  $('modal').hidden ? spin() : $('mOk').click();
+});
+$('resetBtn').onclick = () => {
+  if (!confirm('FULL RESET: erase all teams, spin records and player lists?')) return;
+  try { localStorage.removeItem(KEY); } catch {}
+  location.reload();
+};
+const syncThemeBtn = () => $('themeBtn').textContent = document.documentElement.dataset.theme === 'light' ? '🌙' : '☀️';
+$('themeBtn').onclick = () => {
+  const t = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('vp-theme', t); } catch {}
+  syncThemeBtn();
+};
+syncThemeBtn();
+$('fsBtn').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+addEventListener('resize', () => { if (!spinning && S.started) drawWheel(); });
+
+S.started ? renderDraft() : renderSetup();
+document.fonts?.ready.then(() => S.started && !spinning && drawWheel());
+</script>
+</body>
+</html>
