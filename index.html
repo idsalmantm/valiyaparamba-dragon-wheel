@@ -6,7 +6,6 @@
 <title>Valiyaparamba Dragon Wheel</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐉</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 // Theme before paint: saved choice, else OS preference.
 try { document.documentElement.dataset.theme = localStorage.getItem('vp-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); } catch {}
@@ -125,13 +124,7 @@ summary{font-weight:600;cursor:pointer}
 #modal button{font-size:1.3rem;padding:.7em 2.4em}
 @keyframes zoom{from{transform:scale(.3);opacity:0}}
 
-/* ---------- import + participants ---------- */
-.import{display:flex;flex-wrap:wrap;align-items:center;gap:1rem;padding:1.2rem 1.4rem;margin:1rem 0 2rem;border:2px dashed var(--gold);border-radius:18px;background:rgba(255,200,61,.06)}
-.import b{font-size:1.1rem}
-.import a{color:var(--gold-text)}
-.import label.btn{display:inline-block;border-radius:12px;padding:.7em 1.4em;font-weight:600;color:#1a1200;background:linear-gradient(180deg,var(--gold),var(--gold2));cursor:pointer}
-.import input{display:none}
-#importMsg{color:var(--muted);flex-basis:100%}
+/* ---------- participants ---------- */
 #participants{grid-column:1/-1;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:1.2rem 1.4rem}
 #participants h2{font-family:'Bebas Neue';font-size:2.2rem;letter-spacing:.05em;margin:0 0 .6rem}
 .legend{color:var(--muted);font-size:.9rem;margin-bottom:.8rem}
@@ -173,12 +166,6 @@ summary{font-weight:600;cursor:pointer}
 </header>
 
 <section id="setup" hidden>
-  <div class="import">
-    <b>📥 Import players from Excel / CSV</b>
-    <label class="btn">Choose file<input type="file" id="importFile" accept=".csv,.xlsx,.xls"></label>
-    <a id="tplLink" download="players-template.csv">Download template</a>
-    <span id="importMsg">Columns: <b>SNO, Name, Position</b> (Position: Goalkeeper / Defender / Striker / Wing Back / Forward). Or type names below.</span>
-  </div>
   <h2>Team names</h2>
   <div class="teams-setup" id="teamInputs"></div>
   <h2>Players by position</h2>
@@ -288,41 +275,6 @@ $('startBtn').onclick = () => {
   S.teams = S.setup.teams.map((t,i) => ({name:t.trim() || 'Team '+(i+1), color:TEAM_COLORS[i], players:[]}));
   S.pools = pools; S.phase = 0; S.history = [];
   advance(); save(); renderDraft();
-};
-
-/* ---------------- import ---------------- */
-function posKey(v){
-  const s = String(v).trim().toLowerCase();
-  if (/^(gk|goal|keeper)/.test(s)) return 'GK';
-  if (/^(wb|lwb|rwb|wing)/.test(s)) return 'WB';
-  if (/^(def|back|cb|lb|rb)/.test(s)) return 'DEF';
-  if (/^(st|str)/.test(s)) return 'ST';
-  if (/^(fw|for|att|mid|cm|am)/.test(s)) return 'FWD';
-  return null;
-}
-$('tplLink').href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('SNO,Name,Position\n1,Suhair,Goalkeeper\n5,Unais,Defender\n9,Zahid,Striker\n13,Shaheer,Wing Back\n24,Naseef,Forward\n');
-$('importFile').onchange = async e => {
-  const f = e.target.files[0]; e.target.value = '';
-  if (!f) return;
-  let rows;
-  try {
-    const wb = XLSX.read(await f.arrayBuffer());
-    rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {defval:''});
-  } catch { return alert('Could not read that file. Use .csv or .xlsx with columns SNO, Name, Position.'); }
-  const lists = Object.fromEntries(POS.map(p => [p.k, []])), sno = {}, bad = [];
-  for (const r of rows){
-    const get = k => { const key = Object.keys(r).find(x => x.toLowerCase().replace(/[^a-z]/g,'') === k); return key ? String(r[key]).trim() : ''; };
-    const name = get('name'), p = posKey(get('position'));
-    if (!name) continue;
-    if (!p) { bad.push(`${name} (${get('position') || 'no position'})`); continue; }
-    lists[p].push(name); sno[name] = get('sno');
-  }
-  const total = Object.values(lists).flat().length;
-  if (!total) return alert('No players found. Check the column headers: SNO, Name, Position.');
-  for (const p of POS) S.setup.lists[p.k] = lists[p.k].join('\n');
-  S.setup.sno = sno; save(); renderSetup();
-  $('importMsg').innerHTML = `✅ Imported <b>${total}</b> players from ${esc(f.name)}: ` + POS.map(p => `${p.plural} ${lists[p.k].length}`).join(' · ')
-    + (bad.length ? `<br>⚠️ Skipped (unknown position): ${esc(bad.join(', '))}` : '');
 };
 
 /* ---------------- draft logic ---------------- */
